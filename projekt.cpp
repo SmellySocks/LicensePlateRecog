@@ -22,5 +22,20 @@ originalImage = imread(absolutePath,1);
     resize(originalImage, resizedImage, size);
 	namedWindow( "Display window", WINDOW_AUTOSIZE );
     imshow( "Display window", resizedImage);
- waitKey(0); 
+
+/*------------------------------konwersja na odcienie szarosci-----------*/
+Mat gray_image;
+ cvtColor( resizedImage, gray_image, COLOR_BGR2GRAY );
+
+ imwrite( "../../images/Gray_Image.jpg", gray_image );
+ namedWindow( "Gray image", WINDOW_AUTOSIZE );
+
+
+ imshow( "Gray image", gray_image );
+
+Mat thresholdImage;
+    threshold(gray_image, thresholdImage, 100, 255, THRESH_BINARY);
+    imshow("Threshold", thresholdImage);
+
+ waitKey(0);
 }
