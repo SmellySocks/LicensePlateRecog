@@ -20,7 +20,7 @@ originalImage = imread(absolutePath,1);
         return -1;
     }
 
-    Size size(400,300); 
+    Size size(600,400); 
     resize(originalImage, resizedImage, size);
 	namedWindow( "Display window", WINDOW_AUTOSIZE );
     imshow( "Display window", resizedImage);
@@ -55,7 +55,7 @@ imshow("Blur", blur);
 
 vector<vector<Point> > contours;
   vector<Vec4i> hierarchy;
- findContours( blur, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+ findContours( thresholdImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
 
   /// Approximate contours to polygons + get bounding rects and circles
   vector<vector<Point> > contours_poly( contours.size() );
@@ -83,6 +83,20 @@ vector<vector<Point> > contours;
   /// Show in a window
   namedWindow( "Contours", WINDOW_AUTOSIZE );
   imshow( "Contours", drawing ); 
+Mat mask_image;
+ for (int i = 0; i < contours.size(); i++)
+    {
+        //drawContours(drawing, contours_poly, i, CV_RGB(255, 0, 0), 1, 8, vector<Vec4i>(), 0, Point());
+         
+        int s_x = boundRect[i].x;
+        int s_y = boundRect[i].y;
+        float width = boundRect[i].width;
+        float height = boundRect[i].height;     
+if(width/height>3.5 && width/height<6 && width>20){
+rectangle( resizedImage, boundRect[i].tl(), boundRect[i].br(), CV_RGB(255, 0, 0), 2, 8, 0 );
+imshow("masked", resizedImage);
 
+}
+}
  waitKey(0);
 }
