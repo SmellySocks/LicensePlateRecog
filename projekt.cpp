@@ -3,6 +3,8 @@
 #include "opencv2/core/core.hpp" 
 #include "opencv2/imgproc/imgproc.hpp" 
 #include "opencv2/opencv.hpp"
+#include <tesseract/baseapi.h>
+#include <leptonica/allheaders.h>
 
 using namespace cv;
 using namespace std;
@@ -20,7 +22,7 @@ originalImage = imread(absolutePath,1);
         return -1;
     }
 
-    Size size(600,400); 
+    Size size(400,300); 
     resize(originalImage, resizedImage, size);
 	namedWindow( "Display window", WINDOW_AUTOSIZE );
     imshow( "Display window", resizedImage);
@@ -84,6 +86,7 @@ vector<vector<Point> > contours;
   namedWindow( "Contours", WINDOW_AUTOSIZE );
   imshow( "Contours", drawing ); 
 Mat mask_image;
+Mat croppedImage;
  for (int i = 0; i < contours.size(); i++)
     {
         //drawContours(drawing, contours_poly, i, CV_RGB(255, 0, 0), 1, 8, vector<Vec4i>(), 0, Point());
@@ -92,10 +95,26 @@ Mat mask_image;
         int s_y = boundRect[i].y;
         float width = boundRect[i].width;
         float height = boundRect[i].height;     
-if(width/height>3.5 && width/height<6 && width>20){
+if(width/height>3.7 && width/height<5.5 && width*height>1200 && width*height<4000){
+cout<<width<<" "<<height;
 rectangle( resizedImage, boundRect[i].tl(), boundRect[i].br(), CV_RGB(255, 0, 0), 2, 8, 0 );
 imshow("masked", resizedImage);
+	Rect myROI(s_x-10,s_y-10  ,width+18,height+10);
+	croppedImage = thresholdImage(myROI);
+imshow("cropped", croppedImage);
 
+
+tesseract::TessBaseAPI *tess = new tesseract::TessBaseAPI();
+    // Initialize tesseract-ocr with English, without specifying tessdata path
+    if (tess->Init(NULL, "eng")) {
+        fprintf(stderr, "Could not initialize tesseract.\n");
+        exit(1);
+    } 
+tess->SetImage((uchar*)croppedImage.data, croppedImage.size().width, croppedImage.size().height, croppedImage.channels(), croppedImage.step1());
+tess->Recognize(0);
+const char* out = tess->GetUTF8Text();
+cout<<out;
+delete [] out;
 }
 }
  waitKey(0);
