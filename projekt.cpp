@@ -12,7 +12,7 @@ RNG rng(12345);
 
 int main(int argc, char** argv){
     const char *absolutePath;
-    absolutePath = "/home/michal/Downloads/IMG_5989.JPG";
+    absolutePath = "/home/michal/Downloads/IMG_5990.JPG";
 	Rect bounding_rect;
 
 Mat originalImage, resizedImage;
@@ -22,7 +22,7 @@ originalImage = imread(absolutePath,1);
         return -1;
     }
 
-    Size size(400,300); 
+    Size size(800,600); 
     resize(originalImage, resizedImage, size);
 	namedWindow( "Display window", WINDOW_AUTOSIZE );
     imshow( "Display window", resizedImage);
@@ -38,8 +38,9 @@ Mat gray_image;
  imshow( "Gray image", gray_image );
 //--------------------------threshold------------------------
 
+
 Mat thresholdImage;
-    threshold(gray_image, thresholdImage, 120, 255, THRESH_BINARY);
+    threshold(gray_image, thresholdImage, 140, 255, THRESH_BINARY);
     imshow("Threshold", thresholdImage);
 
 //----------------------------------morp - erozja ------------------
@@ -52,7 +53,7 @@ int erosion_size = 1; //fra 1 e 2 è ok!
     //dilate(image,dst,element);
     imshow("erosion window", morp);
 Mat blur;
-GaussianBlur( morp, blur, Size( 3, 3 ), 0, 0 );
+GaussianBlur( thresholdImage, blur, Size( 1, 1 ), 0, 0 );
 imshow("Blur", blur);
 
 vector<vector<Point> > contours;
@@ -95,18 +96,26 @@ Mat croppedImage;
         int s_y = boundRect[i].y;
         float width = boundRect[i].width;
         float height = boundRect[i].height;     
-if(width/height>3.7 && width/height<5.5 && width*height>1200 && width*height<4000){
+if(width/height>3.8 && width/height<5 && width*height>6000 && width*height<20000){
 cout<<width<<" "<<height;
 rectangle( resizedImage, boundRect[i].tl(), boundRect[i].br(), CV_RGB(255, 0, 0), 2, 8, 0 );
 imshow("masked", resizedImage);
-	Rect myROI(s_x-10,s_y-10  ,width+18,height+10);
-	croppedImage = thresholdImage(myROI);
+	Rect myROI(s_x+0.1*width,s_y-0.07*height  ,0.9*width,0.93*height);
+croppedImage = thresholdImage(myROI);
+Size powieksz((width)*1.5,(height)*1.5); 
+    resize(croppedImage, croppedImage, powieksz);
+dilate(croppedImage, croppedImage, element);
+GaussianBlur(croppedImage, croppedImage, Size( 3, 3 ), 0, 0 );
+erode(croppedImage, croppedImage, element);
+
+//Canny( croppedImage, croppedImage, 3, 3, 3 );
+
+
 imshow("cropped", croppedImage);
 
 
 tesseract::TessBaseAPI *tess = new tesseract::TessBaseAPI();
-    // Initialize tesseract-ocr with English, without specifying tessdata path
-    if (tess->Init(NULL, "eng")) {
+    if (tess->Init(NULL, "arklas")) {
         fprintf(stderr, "Could not initialize tesseract.\n");
         exit(1);
     } 
